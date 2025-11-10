@@ -19,6 +19,16 @@ function ann_bar_add_banner()
 }
 add_action('wp_body_open', 'ann_bar_add_banner');
 
+// Register settings
+add_action('admin_init', 'ann_bar_register_settings');
+function ann_bar_register_settings()
+{
+    register_setting(
+        'announcement_bar_options_group',
+        'announcement_bar_options'
+    );
+}
+
 // Add a new settings page under "Settings"
 function ann_bar_add_settings_page()
 {
@@ -41,13 +51,14 @@ function ann_bar_render_settings_page()
 
         <form method="post" action="options.php">
             <?php
+            settings_fields('announcement_bar_options_group');
 
-            // Default values -- TODO: Get saved options
-            $enabled = 0;
-            $message = '';
-            $color = '#663399';
+            $options = get_option('announcement_bar_options', array());
+            $enabled = isset($options['enabled']) ? $options['enabled'] : 0;
+            $message = isset($options['message']) ? $options['message'] : '';
+            $color = isset($options['color']) ? $options['color'] : '#663399';
+
             ?>
-
             <table class="form-table" role="presentation">
                 <tr>
                     <th scope="row"><?php _e('Announcement Bar', 'announcement-bar'); ?></th>
@@ -80,7 +91,7 @@ function ann_bar_render_settings_page()
                     </td>
                 </tr>
             </table>
-
+            <?php submit_button(); ?>
         </form>
     </div>
 
