@@ -11,6 +11,24 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+function ann_bar_is_light_color($hex) {
+    $hex = str_replace('#', '', $hex);
+
+    if (strlen($hex) === 3) {
+        $r = hexdec(str_repeat(substr($hex, 0, 1), 2));
+        $g = hexdec(str_repeat(substr($hex, 1, 1), 2));
+        $b = hexdec(str_repeat(substr($hex, 2, 1), 2));
+    } else {
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+    }
+
+    $brightness = ($r * 299 + $g * 587 + $b * 114) / 1000;
+    return $brightness > 155;
+}
+
+
 function ann_bar_add_banner()
 {
     // Get saved options
@@ -20,7 +38,8 @@ function ann_bar_add_banner()
     $color = isset($options['color']) ? $options['color'] : '#663399';
 
     if ($enabled) {
-        echo '<div style="background:' . esc_attr($color) . ';color:white;padding:10px;text-align:center;">'
+        $text_color = ann_bar_is_light_color($color) ? '#000000' : '#ffffff';
+        echo '<div style="background:' . esc_attr($color) . ';color:' . esc_attr($text_color) . ';padding:10px;text-align:center;">'
             . esc_html($message) .
             '</div>';
     }
