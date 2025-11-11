@@ -33,7 +33,16 @@ function ann_bar_register_settings()
 {
     register_setting(
         'announcement_bar_options_group',
-        'announcement_bar_options'
+        'announcement_bar_options',
+        array(
+            'sanitize_callback' => function ($input) {
+                $output = array();
+                $output['enabled'] = isset($input['enabled']) && $input['enabled'] ? 1 : 0;
+                $output['message'] = sanitize_text_field($input['message']);
+                $output['color'] = sanitize_hex_color($input['color']);
+                return $output;
+            }
+        )
     );
 }
 
