@@ -13,9 +13,17 @@ if (!defined('ABSPATH')) {
 
 function ann_bar_add_banner()
 {
-    echo '<div style="background:#663399;color:white;padding:10px;text-align:center;">
-        This is an announcement bar!
-    </div>';
+    // Get saved options
+    $options = get_option('announcement_bar_options', array());
+    $enabled = isset($options['enabled']) ? $options['enabled'] : 0;
+    $message = isset($options['message']) ? $options['message'] : 'This is an announcement bar!';
+    $color = isset($options['color']) ? $options['color'] : '#663399';
+
+    if ($enabled) {
+        echo '<div style="background:' . esc_attr($color) . ';color:white;padding:10px;text-align:center;">'
+            . esc_html($message) .
+            '</div>';
+    }
 }
 add_action('wp_body_open', 'ann_bar_add_banner');
 
