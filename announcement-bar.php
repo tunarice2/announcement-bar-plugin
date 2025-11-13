@@ -11,7 +11,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-function ann_bar_is_light_color($hex) {
+function ann_bar_is_light_color($hex)
+{
     $hex = str_replace('#', '', $hex);
 
     if (strlen($hex) === 3) {
@@ -39,9 +40,40 @@ function ann_bar_add_banner()
 
     if ($enabled) {
         $text_color = ann_bar_is_light_color($color) ? '#000000' : '#ffffff';
-        echo '<div style="background:' . esc_attr($color) . ';color:' . esc_attr($text_color) . ';padding:10px;text-align:center;">'
-            . esc_html($message) .
-            '</div>';
+        ?>
+        <style>
+            #announcement-bar {
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background:
+                    <?php echo esc_attr($color); ?>
+                ;
+                color:
+                    <?php echo esc_attr($text_color); ?>
+                ;
+                padding: 12px 24px;
+                border-radius: 20px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                z-index: 9999;
+                text-align: center;
+                max-width: 90vw;
+                min-width: 300px;
+                font-size: 16px;
+                line-height: 1.4;
+            }
+
+            /* When admin bar is visible, push it down */
+            body.admin-bar #announcement-bar {
+                top: 45px;
+            }
+        </style>
+        <div id="announcement-bar">
+            <?php echo esc_html($message); ?>
+        </div>
+
+        <?php
     }
 }
 add_action('wp_body_open', 'ann_bar_add_banner');
