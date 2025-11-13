@@ -58,20 +58,57 @@ function ann_bar_add_banner()
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
                 z-index: 9999;
                 text-align: center;
-                max-width: 90vw;
-                min-width: 300px;
+                max-width: 90vw !important;
+                min-width: 50px;
                 font-size: 16px;
                 line-height: 1.4;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 12px;
             }
 
-            /* When admin bar is visible, push it down */
+            #announcement-close {
+                background: none;
+                border: none;
+                color: inherit;
+                font-size: 20px;
+                cursor: pointer;
+                margin-left: 12px;
+                transition: opacity 0.2s ease;
+            }
+
+            #announcement-close:hover {
+                opacity: 0.7;
+            }
+
+            /* Adjust when admin bar is visible */
             body.admin-bar #announcement-bar {
                 top: 45px;
             }
         </style>
         <div id="announcement-bar">
-            <?php echo esc_html($message); ?>
+            <span class="announcement-text"><?php echo esc_html($message); ?></span>
+            <button id="announcement-close" aria-label="Close announcement">&times;</button>
         </div>
+
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const closeBtn = document.getElementById('announcement-close');
+                const bar = document.getElementById('announcement-bar');
+
+                if (closeBtn && bar) {
+                    closeBtn.addEventListener('click', () => {
+                        bar.style.opacity = '0';
+                        setTimeout(() => {
+                            bar.style.display = 'none';
+                        }, 300);
+                    });
+                }
+            });
+        </script>
+
 
         <?php
     }
