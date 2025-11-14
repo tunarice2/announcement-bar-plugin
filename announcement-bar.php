@@ -36,6 +36,7 @@ function ann_bar_add_banner()
     $options = get_option('announcement_bar_options', array());
     $enabled = isset($options['enabled']) ? $options['enabled'] : 0;
     $message = isset($options['message']) ? $options['message'] : 'This is an announcement bar!';
+    $message_key = md5($message);
     $color = isset($options['color']) ? $options['color'] : '#663399';
 
     if ($enabled) {
@@ -62,7 +63,7 @@ function ann_bar_add_banner()
                 min-width: 50px;
                 font-size: 16px;
                 line-height: 1.4;
-                display: flex;
+                display: none;
                 align-items: center;
                 justify-content: center;
                 gap: 12px;
@@ -94,15 +95,38 @@ function ann_bar_add_banner()
 
 
         <script>
+            function setCookie(name, value) {
+                document.cookie = `${name}=${value}; path=/; SameSite=Lax`;
+            }
+
+            function getCookie(name) {
+                const cookies = document.cookie.split("; ").map(c => c.split("="));
+                for (const [key, val] of cookies) {
+                    if (key === name) return val;
+                }
+                return null;
+            }
+
             document.addEventListener('DOMContentLoaded', function () {
                 const closeBtn = document.getElementById('announcement-close');
                 const bar = document.getElementById('announcement-bar');
+                // Check cookie instead of local storage
+                const messageKey = "<?php echo $message_key; ?>";
+                const dismissed = getCookie("announcementDismissed_" + messageKey);
+
+
+                if (!dismissed) {
+                    bar.style.display = 'flex';
+                }
 
                 if (closeBtn && bar) {
                     closeBtn.addEventListener('click', () => {
                         bar.style.opacity = '0';
                         setTimeout(() => {
                             bar.style.display = 'none';
+
+                            // Set session cookie
+                            setCookie("announcementDismissed_" + messageKey, "true");
                         }, 300);
                     });
                 }
@@ -113,7 +137,7 @@ function ann_bar_add_banner()
         <?php
     }
 }
-add_action('wp_body_open', 'ann_bar_add_banner');
+add_action('wp_footer', 'ann_bar_add_banner');
 
 // Register settings
 add_action('admin_init', 'ann_bar_register_settings');
@@ -157,6 +181,11 @@ function ann_bar_render_settings_page()
         <form method="post" action="options.php">
             <?php
             settings_fields('announcement_bar_options_group');
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                // Clear the session cookie so the new announcement shows immediately
+                echo "<script>document.cookie = 'announcementDismissed=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';</script>";
+            }
+
 
             $options = get_option('announcement_bar_options', array());
             $enabled = isset($options['enabled']) ? $options['enabled'] : 0;
